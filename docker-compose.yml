@@ -1,15 +1,28 @@
 services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/notes_db
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+
   db:
-     image: postgres:18.3
-     restart: always
-     ports:
-       - 5432:5432
-     environment:
-       POSTGRES_USER: postgres
-       POSTGRES_PASSWORD: password
-       POSTGRES_DB: notes_db
-     volumes:
-       - pgdata:/var/lib/postgresql/18/docker
+    image: postgres:18.3
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: notes_db
+    volumes:
+      - pgdata:/var/lib/postgresql/18/docker
 
   adminer:
     image: adminer

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const { Note } = require("../models");
+const { Note, User } = require("../models/index");
 
 // middleware to not repeat the same code for finding a single ntoe
 const noteFinder = async (req, res, next) => {
@@ -30,7 +30,12 @@ router.get("/:id", noteFinder, async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     console.log(req.body);
-    const note = await Note.create({ ...req.body, date: new Date() });
+    const user = await User.findOne();
+    const note = await Note.create({
+      ...req.body,
+      date: new Date(),
+      userId: user.id,
+    });
     res.json(note);
   } catch (error) {
     return res.status(400).json({ error });
