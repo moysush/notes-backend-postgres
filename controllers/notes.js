@@ -1,8 +1,23 @@
 const router = require("express").Router();
+const jwt = require("jsonwebtoken");
+const { SECRET } = require("../util/config");
+
+const tokenExtractor = (req, res, next) => {
+  const authorization = req.get("authorization");
+  if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
+    try {
+      req.decodedToken = jwt.verify(authorization.substring(7), SECRET);
+    } catch {
+      return res.status(401).json({ error: "token invalid" });
+    }
+  } else {
+    return res.status(401).json({ error: "token missing" });
+  }
+  next();
+};
 
 const { Note, User } = require("../models/index");
 
-// middleware to not repeat the same code for finding a single ntoe
 const noteFinder = async (req, res, next) => {
   req.note = await Note.findByPk(req.params.id);
   if (!req.note) {
@@ -27,10 +42,10 @@ router.get("/:id", noteFinder, async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", tokenExtractor, async (req, res) => {
   try {
     console.log(req.body);
-    const user = await User.findOne();
+    const user = await User.findByPk(req.decodedToken.id);
     const note = await Note.create({
       ...req.body,
       date: new Date(),

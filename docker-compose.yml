@@ -2,7 +2,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Containerfile
     ports:
       - 3001:3001
     environment:
@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app:Z
 
   db:
     image: postgres:18.3
